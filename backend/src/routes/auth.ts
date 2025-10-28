@@ -10,8 +10,14 @@ const router = Router();
 
 router.post('/register', async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body as { name: string; email: string; password: string };
-    if (!name || !email || !password) return res.status(400).json({ message: 'Dados incompletos' });
+    const { firstName, lastName, email, password, dateOfBirth } = req.body as {
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+      dateOfBirth?: string | null;
+    };
+    if (!firstName || !lastName || !email || !password) return res.status(400).json({ message: 'Dados incompletos' });
     if (password.length < 8) return res.status(400).json({ message: 'Senha deve ter no mínimo 8 caracteres' });
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -19,8 +25,15 @@ router.post('/register', async (req: Request, res: Response) => {
     if (existing) return res.status(409).json({ message: 'Email já cadastrado' });
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name: name.trim(), email: normalizedEmail, passwordHash });
-    return res.status(201).json({ id: user.id, name: user.name, email: user.email });
+    const user = await User.create({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: normalizedEmail,
+      passwordHash,
+      dateOfBirth: dateOfBirth ?? null,
+    });
+    const fullName = `${user.firstName} ${user.lastName}`.trim();
+    return res.status(201).json({ id: user.id, firstName: user.firstName, lastName: user.lastName, fullName, email: user.email, dateOfBirth: user.dateOfBirth, name: fullName });
   } catch (err) {
     if (err instanceof UniqueConstraintError) {
       return res.status(409).json({ message: 'Email já cadastrado' });
@@ -46,7 +59,8 @@ router.post('/login', async (req: Request, res: Response) => {
       appConfig.jwtSecret as Secret,
       { expiresIn: appConfig.jwtExpiresIn as SignOptions['expiresIn'] }
     );
-    return res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    const fullName = `${user.firstName} ${user.lastName}`.trim();
+    return res.json({ token, user: { id: user.id, firstName: user.firstName, lastName: user.lastName, fullName, email: user.email, dateOfBirth: user.dateOfBirth, name: fullName } });
   } catch (err) {
     return res.status(500).json({ message: 'Erro ao autenticar', error: (err as Error).message });
   }
@@ -55,8 +69,8 @@ router.post('/login', async (req: Request, res: Response) => {
 router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
   const user = await User.findByPk(req.user!.id);
   if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
-  return res.json({ id: user.id, name: user.name, email: user.email });
+  const fullName = `${user.firstName} ${user.lastName}`.trim();
+  return res.json({ id: user.id, firstName: user.firstName, lastName: user.lastName, fullName, email: user.email, dateOfBirth: user.dateOfBirth, name: fullName });
 });
 
 export default router;
-

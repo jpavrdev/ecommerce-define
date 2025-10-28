@@ -3,20 +3,24 @@ import { sequelize } from './index.js';
 
 interface UserAttributes {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   passwordHash: string;
+  dateOfBirth?: string | null; // YYYY-MM-DD (DATEONLY)
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-type UserCreationAttributes = Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt'>;
+type UserCreationAttributes = Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'dateOfBirth'>;
 
 export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
-  public name!: string;
+  public firstName!: string;
+  public lastName!: string;
   public email!: string;
   public passwordHash!: string;
+  public dateOfBirth!: string | null;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -28,7 +32,11 @@ User.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
+    firstName: {
+      type: DataTypes.STRING(80),
+      allowNull: false,
+    },
+    lastName: {
       type: DataTypes.STRING(120),
       allowNull: false,
     },
@@ -44,10 +52,13 @@ User.init(
       type: DataTypes.STRING(100),
       allowNull: false,
     },
+    dateOfBirth: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
   },
   {
     sequelize,
     tableName: 'users',
   }
 );
-

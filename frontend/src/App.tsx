@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { api, getToken } from './api';
 
-type User = { id: number; name: string; email: string };
+type User = {
+  id: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  name?: string;
+  dateOfBirth?: string | null;
+};
 
 export default function App() {
   const [view, setView] = useState<'login' | 'register' | 'profile'>('login');
@@ -42,9 +50,26 @@ export default function App() {
         </div>
       )}
 
-      {view === 'login' && <LoginForm onSuccess={(u) => { setUser(u); setView('profile'); }} onError={setError} />}
+      {view === 'login' && (
+        <LoginForm
+          onSuccess={(u) => {
+            setUser(u);
+            setView('profile');
+          }}
+          onError={setError}
+        />
+      )}
       {view === 'register' && <RegisterForm onSuccess={() => setView('login')} onError={setError} />}
-      {view === 'profile' && user && <Profile user={user} onLogout={() => { api.logout(); setUser(null); setView('login'); }} />}
+      {view === 'profile' && user && (
+        <Profile
+          user={user}
+          onLogout={() => {
+            api.logout();
+            setUser(null);
+            setView('login');
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -86,9 +111,11 @@ function LoginForm({ onSuccess, onError }: { onSuccess: (user: User) => void; on
 }
 
 function RegisterForm({ onSuccess, onError }: { onSuccess: () => void; onError: (msg: string | null) => void }) {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
 
   async function submit(e: React.FormEvent) {
@@ -96,7 +123,7 @@ function RegisterForm({ onSuccess, onError }: { onSuccess: () => void; onError: 
     onError(null);
     setSubmitting(true);
     try {
-      await api.register({ name, email, password });
+      await api.register({ firstName, lastName, email, password, dateOfBirth: dateOfBirth || undefined });
       onSuccess();
     } catch (e) {
       onError((e as Error).message);
@@ -108,8 +135,12 @@ function RegisterForm({ onSuccess, onError }: { onSuccess: () => void; onError: 
   return (
     <form onSubmit={submit} style={{ display: 'grid', gap: 8 }}>
       <label>
-        Nome
-        <input value={name} onChange={(e) => setName(e.target.value)} required />
+        Primeiro nome
+        <input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+      </label>
+      <label>
+        Sobrenome
+        <input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
       </label>
       <label>
         Email
@@ -119,6 +150,10 @@ function RegisterForm({ onSuccess, onError }: { onSuccess: () => void; onError: 
         Senha
         <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
       </label>
+      <label>
+        Data de nascimento
+        <input value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} type="date" />
+      </label>
       <button type="submit" disabled={submitting}>
         {submitting ? 'Criando...' : 'Criar conta'}
       </button>
@@ -127,10 +162,13 @@ function RegisterForm({ onSuccess, onError }: { onSuccess: () => void; onError: 
 }
 
 function Profile({ user, onLogout }: { user: User; onLogout: () => void }) {
+  const displayName =
+    user.fullName || (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.name) || 'Usuário';
   return (
     <div style={{ display: 'grid', gap: 8 }}>
-      <h2>Olá, {user.name} 👋</h2>
+      <h2>Olá, {displayName} 👋</h2>
       <p>Email: {user.email}</p>
+      {user.dateOfBirth ? <p>Nascimento: {user.dateOfBirth}</p> : null}
       <button onClick={onLogout}>Sair</button>
     </div>
   );
