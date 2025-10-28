@@ -2,9 +2,11 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { User } from '../models/User.js';
+import { PasswordResetToken } from '../models/PasswordResetToken.js';
 import { appConfig } from '../config/database.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 import { UniqueConstraintError } from 'sequelize';
+import crypto from 'crypto';
 
 const router = Router();
 
@@ -74,3 +76,60 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 export default router;
+
+// Password reset
+const RESET_TOKEN_TTL_MINUTES = 30;
+
+router.post('/forgot-password', async (req: Request, res: Response) => {
+  const { email } = req.body as { email?: string };
+  const normalizedEmail = (email || '').trim().toLowerCase();
+  if (!normalizedEmail) return res.status(200).json({ message: 'Se existir, enviaremos instruções para o e-mail' });
+
+  try {
+    const user = await User.findOne({ where: { email: normalizedEmail } });
+    if (user) {
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+      const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
+
+      await PasswordResetToken.create({ userId: user.id, tokenHash, expiresAt });
+
+      // Em produção, envie o rawToken por e-mail. Em dev, retornamos para facilitar testes.
+      if (appConfig.nodeEnv !== 'production') {
+        return res.status(200).json({ message: 'Se existir, enviaremos instruções para o e-mail', devToken: rawToken });
+      }
+    }
+    return res.status(200).json({ message: 'Se existir, enviaremos instruções para o e-mail' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Erro ao iniciar reset de senha', error: (err as Error).message });
+  }
+});
+
+router.post('/reset-password', async (req: Request, res: Response) => {
+  const { token, newPassword } = req.body as { token?: string; newPassword?: string };
+  if (!token || !newPassword) return res.status(400).json({ message: 'Dados incompletos' });
+  if (newPassword.length < 8) return res.status(400).json({ message: 'Senha deve ter no mínimo 8 caracteres' });
+
+  try {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const now = new Date();
+    const record = await PasswordResetToken.findOne({ where: { tokenHash } });
+    if (!record || (record.usedAt as any) || record.expiresAt < now) {
+      return res.status(400).json({ message: 'Token inválido ou expirado' });
+    }
+
+    const user = await User.findByPk(record.userId);
+    if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    user.passwordHash = passwordHash;
+    await user.save();
+
+    record.usedAt = now;
+    await record.save();
+
+    return res.status(200).json({ message: 'Senha redefinida com sucesso' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Erro ao redefinir senha', error: (err as Error).message });
+  }
+});

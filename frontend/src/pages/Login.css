@@ -1,0 +1,4 @@
+.auth-form { display: grid; gap: 12px; }
+.auth-row { display: grid; gap: 6px; }
+.auth-label { font-weight: 600; color: var(--brand-blue); }
+.auth-actions { display: flex; justify-content: space-between; }

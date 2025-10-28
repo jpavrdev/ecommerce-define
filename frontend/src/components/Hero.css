@@ -1,0 +1,5 @@
+.hero { background: linear-gradient(90deg, var(--brand-blue), #163c7d); color: #fff; }
+.hero__wrap { max-width: 1200px; margin: 0 auto; padding: 28px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.hero__image { width: 420px; max-width: 50%; border-radius: 8px; }
+.hero__title { margin: 0 0 8px 0; }
+.hero__subtitle { margin: 0; opacity: 0.95; }

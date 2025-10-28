@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="320" height="80" viewBox="0 0 320 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Construclick">
+  <defs>
+    <style>
+      .brand-blue{fill:#0C2A57}
+      .brand-orange{fill:#ff4d00}
+    </style>
+  </defs>
+  <!-- Simplified mark: circular C -->
+  <g transform="translate(8,8)">
+    <circle cx="24" cy="24" r="24" class="brand-blue"/>
+    <circle cx="24" cy="24" r="17" fill="#fff"/>
+    <path d="M36 24c0 6.6-5.4 12-12 12-3.3 0-6.3-1.3-8.5-3.5l4.3-4.3c1.2 1.2 2.9 1.9 4.7 1.9 3.7 0 6.6-3 6.6-6.6S28.2 16.8 24.5 16.8c-1.8 0-3.5.7-4.7 1.9l-4.3-4.3C17.7 12.1 20.7 10.8 24 10.8 30.6 10.8 36 17.4 36 24z" class="brand-blue"/>
+  </g>
+  <!-- Wordmark -->
+  <g transform="translate(70,18)">
+    <text x="0" y="24" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800" class="brand-orange">Construclick</text>
+  </g>
+</svg>
+

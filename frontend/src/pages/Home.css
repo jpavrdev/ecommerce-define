@@ -1,0 +1,11 @@
+.home { background: var(--bg); }
+.home__main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+.home__section { margin-bottom: 24px; }
+.home__title { margin: 0 0 12px 0; }
+.home__note { opacity: 0.9; }
+.home__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.home__newsletter { background: var(--brand-blue); color: #fff; border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.home__headline { font-weight: 700; font-size: 18px; }
+.home__newsletter-form { display: flex; width: 420px; max-width: 60%; }
+.home__newsletter-input { flex: 1; padding: 10px 12px; border: none; border-radius: 6px 0 0 6px; }
+.home__newsletter-btn { padding: 10px 14px; background: var(--brand-orange); color: #fff; border: none; border-radius: 0 6px 6px 0; font-weight: 700; }

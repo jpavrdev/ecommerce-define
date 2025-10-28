@@ -41,13 +41,34 @@ export const api = {
     email: string;
     password: string;
     dateOfBirth?: string | null;
-  }) => request('/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
-  login: async (payload: { email: string; password: string }) => {
-    const data = await request('/auth/login', { method: 'POST', body: JSON.stringify(payload) });
+  }) => request('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  login: async (payload: {
+    email: string;
+    password: string
+  }) => {
+    const data = await request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
     setToken((data as any).token);
     return data as any;
   },
   me: () => request('/auth/me'),
   logout: () => setToken(null),
+  forgotPassword: (payload: {
+    email: string
+  }) => request('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+    }),
+  resetPassword: (payload: {
+    token: string;
+    newPassword: string
+  }) => request('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+    }),
 };
-
