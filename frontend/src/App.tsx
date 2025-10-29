@@ -5,6 +5,7 @@ import AuthPage from './pages/Auth';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import AdminPage from './pages/Admin';
+import { RequireAdmin } from './components/RouteGuards';
 
 export default function App() {
   return (
@@ -14,7 +15,7 @@ export default function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin" element={<RequireAdmin><AdminPage /></RequireAdmin>} />
       </Routes>
     </BrowserRouter>
   );
