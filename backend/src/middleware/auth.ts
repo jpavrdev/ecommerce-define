@@ -3,7 +3,7 @@ import jwt, { Secret } from 'jsonwebtoken';
 import { appConfig } from '../config/database.js';
 
 export interface AuthRequest extends Request {
-  user?: { id: number; email: string };
+  user?: { id: number; email: string; role?: 'user' | 'admin' };
 }
 
 export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
@@ -14,10 +14,16 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   if (!token) return res.status(401).json({ message: 'Token inválido' });
 
   try {
-    const payload = jwt.verify(token, appConfig.jwtSecret as Secret) as { id: number; email: string };
-    req.user = { id: payload.id, email: payload.email };
+    const payload = jwt.verify(token, appConfig.jwtSecret as Secret) as { id: number; email: string; role?: 'user' | 'admin' };
+    req.user = { id: payload.id, email: payload.email, role: payload.role };
     next();
   } catch {
     return res.status(401).json({ message: 'Token inválido ou expirado' });
   }
 }
+
+export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acesso restrito a administradores' });
+  return next();
+}
+

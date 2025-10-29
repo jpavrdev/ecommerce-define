@@ -7,12 +7,13 @@ interface UserAttributes {
   lastName: string;
   email: string;
   passwordHash: string;
+  role: 'user' | 'admin';
   dateOfBirth?: string | null; // YYYY-MM-DD (DATEONLY)
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-type UserCreationAttributes = Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'dateOfBirth'>;
+type UserCreationAttributes = Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'dateOfBirth' | 'role'>;
 
 export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
@@ -20,6 +21,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
   public lastName!: string;
   public email!: string;
   public passwordHash!: string;
+  public role!: 'user' | 'admin';
   public dateOfBirth!: string | null;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -51,6 +53,11 @@ User.init(
     passwordHash: {
       type: DataTypes.STRING(100),
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM('user', 'admin'),
+      allowNull: false,
+      defaultValue: 'user',
     },
     dateOfBirth: {
       type: DataTypes.DATEONLY,

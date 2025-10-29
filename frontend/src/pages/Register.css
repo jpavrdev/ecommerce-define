@@ -1,4 +1,13 @@
-.auth-form { display: grid; gap: 12px; }
+.auth-form {
+    display: grid;
+    gap: 12px;
+    max-width: 560px;
+    margin: 0 auto;
+    margin-right: 10px;
+}
 .auth-row { display: grid; gap: 6px; }
 .auth-cols { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
 .auth-label { font-weight: 600; color: var(--brand-blue); }
+.auth-center { text-align: center; }
+.auth-bottom { text-align: center; }
+.btn-md { padding: 12px 24px; }

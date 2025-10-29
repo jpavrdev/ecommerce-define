@@ -14,6 +14,7 @@ interface AppConfig {
   jwtSecret: string;
   jwtExpiresIn: string | number;
   nodeEnv: string;
+  adminEmails: string[];
 }
 
 const parsedExpires: string | number = (() => {
@@ -28,4 +29,5 @@ export const appConfig: AppConfig = {
   jwtSecret: process.env.JWT_SECRET || 'supersecretjwtkey',
   jwtExpiresIn: parsedExpires,
   nodeEnv: process.env.NODE_ENV || 'development',
+  adminEmails: (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
 };

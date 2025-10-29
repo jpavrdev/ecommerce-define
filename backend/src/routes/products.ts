@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { Product } from '../models/Product.js';
 import { Brand } from '../models/Brand.js';
+import { authMiddleware, requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -43,9 +44,9 @@ router.get('/:id', async (req: Request, res: Response) => {
   return res.json(p);
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', authMiddleware, requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { name, sku, price, description, characteristics, specifications, brandId, brandName } = req.body as any;
+    const { name, sku, price, description, characteristics, specifications, imageUrl, images, brandId, brandName } = req.body as any;
     if (!name || !sku || price === undefined) return res.status(400).json({ message: 'Dados incompletos' });
 
     let resolvedBrandId: number | undefined;
@@ -56,6 +57,11 @@ router.post('/', async (req: Request, res: Response) => {
       resolvedBrandId = b.id;
     }
 
+    let imagesPayload: string[] | null = null;
+    if (Array.isArray(images)) {
+      imagesPayload = images.filter((u: any) => typeof u === 'string');
+    }
+
     const p = await Product.create({
       name: String(name).trim(),
       sku: String(sku).trim(),
@@ -63,6 +69,8 @@ router.post('/', async (req: Request, res: Response) => {
       description: description ?? null,
       characteristics: characteristics ?? null,
       specifications: specifications ?? null,
+      imageUrl: imageUrl ?? (imagesPayload && imagesPayload.length ? imagesPayload[0] : null),
+      images: imagesPayload,
       brandId: resolvedBrandId ?? null,
     });
     const withBrand = await Product.findByPk(p.id, { include: [{ model: Brand, as: 'brand', attributes: ['id', 'name'] }] });
@@ -72,13 +80,13 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', authMiddleware, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     const p = await Product.findByPk(id);
     if (!p) return res.status(404).json({ message: 'Produto não encontrado' });
 
-    const { name, sku, price, description, characteristics, specifications, brandId, brandName } = req.body as any;
+    const { name, sku, price, description, characteristics, specifications, imageUrl, images, brandId, brandName } = req.body as any;
 
     let resolvedBrandId: number | null | undefined = undefined;
     if (brandId !== undefined) {
@@ -92,6 +100,11 @@ router.put('/:id', async (req: Request, res: Response) => {
       }
     }
 
+    let imagesPayload: string[] | undefined;
+    if (images !== undefined) {
+      imagesPayload = Array.isArray(images) ? images.filter((u: any) => typeof u === 'string') : [];
+    }
+
     await p.update({
       name: name !== undefined ? String(name).trim() : p.name,
       sku: sku !== undefined ? String(sku).trim() : p.sku,
@@ -99,6 +112,8 @@ router.put('/:id', async (req: Request, res: Response) => {
       description: description !== undefined ? description : p.description,
       characteristics: characteristics !== undefined ? characteristics : p.characteristics,
       specifications: specifications !== undefined ? specifications : p.specifications,
+      imageUrl: imageUrl !== undefined ? imageUrl : p.imageUrl,
+      images: imagesPayload !== undefined ? imagesPayload : p.images,
       brandId: resolvedBrandId !== undefined ? resolvedBrandId : p.brandId,
     });
 
@@ -109,7 +124,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', authMiddleware, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     const p = await Product.findByPk(id);
@@ -122,4 +137,3 @@ router.delete('/:id', async (req: Request, res: Response) => {
 });
 
 export default router;
-

@@ -10,6 +10,8 @@ export interface ProductAttributes {
   description?: string | null;
   characteristics?: any | null; // JSON
   specifications?: any | null; // JSON
+  imageUrl?: string | null;
+  images?: any | null; // JSON array of URLs
   brandId?: number | null;
   createdAt?: Date;
   updatedAt?: Date;
@@ -28,6 +30,8 @@ export class Product extends Model<ProductAttributes, ProductCreationAttributes>
   public description!: string | null;
   public characteristics!: any | null;
   public specifications!: any | null;
+  public imageUrl!: string | null;
+  public images!: any | null;
   public brandId!: number | null;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -65,6 +69,14 @@ Product.init(
       type: DataTypes.JSON,
       allowNull: true,
     },
+    imageUrl: {
+      type: DataTypes.STRING(1024),
+      allowNull: true,
+    },
+    images: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
     brandId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true,
@@ -76,4 +88,3 @@ Product.init(
 
 Brand.hasMany(Product, { foreignKey: 'brandId', as: 'products' });
 Product.belongsTo(Brand, { foreignKey: 'brandId', as: 'brand' });
-

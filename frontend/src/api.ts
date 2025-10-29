@@ -14,9 +14,7 @@ async function request(path: string, options: RequestInit = {}) {
   if (options.headers) {
     const h = options.headers as HeadersInit;
     if (h instanceof Headers) {
-      h.forEach((v, k) => {
-        headers[k] = v as string;
-      });
+      h.forEach((v, k) => { headers[k] = v as string; });
     } else if (Array.isArray(h)) {
       for (const [k, v] of h) headers[k] = v as string;
     } else {
@@ -30,45 +28,29 @@ async function request(path: string, options: RequestInit = {}) {
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
   const contentType = res.headers.get('content-type') || '';
   const data = contentType.includes('application/json') ? await res.json() : await res.text();
-  if (!res.ok) throw new Error(typeof data === 'string' ? data : (data.message || 'Erro na requisição'));
+  if (!res.ok) {
+    const msg = typeof data === 'string' ? data : (data.message || 'Erro na requisição');
+    const err: any = new Error(msg);
+    if (data && typeof data === 'object' && 'errors' in (data as any)) err.details = (data as any).errors;
+    throw err;
+  }
   return data;
 }
 
 export const api = {
-  register: (payload: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    dateOfBirth?: string | null;
-  }) => request('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  }),
-  login: async (payload: {
-    email: string;
-    password: string
-  }) => {
-    const data = await request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
+  register: (payload: { firstName: string; lastName: string; email: string; password: string; confirmPassword: string; dateOfBirth?: string | null; }) =>
+    request('/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
+  login: async (payload: { email: string; password: string }) => {
+    const data = await request('/auth/login', { method: 'POST', body: JSON.stringify(payload) });
     setToken((data as any).token);
     return data as any;
   },
   me: () => request('/auth/me'),
   logout: () => setToken(null),
-  forgotPassword: (payload: {
-    email: string
-  }) => request('/auth/forgot-password', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-    }),
-  resetPassword: (payload: {
-    token: string;
-    newPassword: string
-  }) => request('/auth/reset-password', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-    }),
+  forgotPassword: (payload: { email: string }) =>
+    request('/auth/forgot-password', { method: 'POST', body: JSON.stringify(payload) }),
+  resetPassword: (payload: { token: string; newPassword: string }) =>
+    request('/auth/reset-password', { method: 'POST', body: JSON.stringify(payload) }),
+  createProduct: (payload: { name: string; sku: string; price: number; description?: string; brandId?: number; brandName?: string; imageUrl?: string; images?: string[]; characteristics?: any; specifications?: any; }) =>
+    request('/products', { method: 'POST', body: JSON.stringify(payload) }),
 };
