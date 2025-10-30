@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
 import { api, getToken } from '../api';
+import { useCart } from './CartContext';
 
 type User = { id: number; email: string; firstName?: string; lastName?: string; fullName?: string; name?: string };
 
@@ -9,6 +10,7 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const { count } = useCart();
 
   useEffect(() => {
     if (getToken()) {
@@ -68,14 +70,22 @@ export default function Header() {
               <svg className="cart__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM3 4h2l2.6 10.39A2 2 0 0 0 9.53 16h7.94a2 2 0 0 0 1.93-1.61L22 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Carrinho
+              Carrinho{count > 0 ? ` (${count})` : ''}
             </Link>
           </div>
         ) : (
-          <nav className="header__nav">
-            <Link to="/login" className="header__link">Entrar</Link>
-            <Link to="/register" className="header__link header__link--primary">Criar conta</Link>
-          </nav>
+          <div className="header__right">
+            <nav className="header__nav">
+              <Link to="/login" className="header__link">Entrar</Link>
+              <Link to="/register" className="header__link header__link--primary">Criar conta</Link>
+            </nav>
+            <Link to="/cart" className="cart" aria-label="Carrinho">
+              <svg className="cart__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM3 4h2l2.6 10.39A2 2 0 0 0 9.53 16h7.94a2 2 0 0 0 1.93-1.61L22 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Carrinho{count > 0 ? ` (${count})` : ''}
+            </Link>
+          </div>
         )}
       </div>
     </header>

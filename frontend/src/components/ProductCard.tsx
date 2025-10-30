@@ -1,5 +1,6 @@
 import React from 'react';
 import './ProductCard.css';
+import { useCart } from './CartContext';
 
 export type Product = {
   id: number;
@@ -10,6 +11,7 @@ export type Product = {
 };
 
 export default function ProductCard({ p }: { p: Product }) {
+  const { add } = useCart();
   return (
     <div className="card">
       <div className="card__imgwrap">
@@ -18,7 +20,7 @@ export default function ProductCard({ p }: { p: Product }) {
       </div>
       <div className="card__title">{p.title}</div>
       <div className="card__price">R$ {p.price.toFixed(2)}</div>
-      <button className="card__btn">Adicionar</button>
+      <button className="card__btn" onClick={() => add(p)}>Adicionar</button>
     </div>
   );
 }
