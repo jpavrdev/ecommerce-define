@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import type { SignOptions } from 'jsonwebtoken';
+import type { Secret, SignOptions } from 'jsonwebtoken';
 
 function required(name: string): string {
   const v = process.env[name];
@@ -18,7 +18,7 @@ function parseExpires(): ExpiresIn {
 
 export const appConfig = {
   port: Number(process.env.PORT || 4000),
-  jwtSecret: required('JWT_SECRET'),
+  jwtSecret: required('JWT_SECRET') as Secret,
   jwtExpiresIn: parseExpires(),
   nodeEnv: process.env.NODE_ENV || 'development',
   adminEmails: (process.env.ADMIN_EMAILS || '')
@@ -27,7 +27,7 @@ export const appConfig = {
     .filter(Boolean),
 } satisfies {
   port: number;
-  jwtSecret: string;
+  jwtSecret: Secret;
   jwtExpiresIn: ExpiresIn;
   nodeEnv: string;
   adminEmails: string[];
