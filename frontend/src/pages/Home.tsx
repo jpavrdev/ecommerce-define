@@ -5,17 +5,56 @@ import Hero from '../components/Hero';
 import ProductCard, { Product } from '../components/ProductCard';
 import Footer from '../components/Footer';
 import './Home.css';
+import { api } from '../api';
 
-const sample: Product[] = [
-  { id: 1, title: 'Cimento CP-II 50kg', price: 39.9, image: 'https://images.unsplash.com/photo-1582582621957-5f6a71e17831?q=80&w=800&auto=format&fit=crop', badge: 'Oferta' },
-  { id: 2, title: 'Tijolo Cerâmico 9x19x19', price: 1.29, image: 'https://images.unsplash.com/photo-1637169031919-25efc41f2d2e?q=80&w=800&auto=format&fit=crop' },
-  { id: 3, title: 'Tinta Acrílica 18L Branco', price: 199.9, image: 'https://images.unsplash.com/photo-1613548320506-6fa9ea2502a7?q=80&w=800&auto=format&fit=crop' },
-  { id: 4, title: 'Furadeira de Impacto 650W', price: 249.9, image: 'https://images.unsplash.com/photo-1581783898377-1c85bf937427?q=80&w=800&auto=format&fit=crop', badge: 'Lançamento' },
-  { id: 5, title: 'Lâmpada LED 9W', price: 7.9, image: 'https://images.unsplash.com/photo-1496284045406-d3e0b918d7ba?q=80&w=800&auto=format&fit=crop' },
-  { id: 6, title: 'Registro Esfera 1/2"', price: 18.5, image: 'https://images.unsplash.com/photo-1583225523296-3228f18c1940?q=80&w=800&auto=format&fit=crop' },
-];
+type ServerProduct = {
+  id: number;
+  name: string;
+  price: string; // DECIMAL string
+  imageUrl?: string | null;
+  images?: string[];
+  brandName?: string | null;
+  description?: string | null;
+};
+
+const placeholder = 'https://images.unsplash.com/photo-1606813907291-76a3600e5d0f?q=80&w=1200&auto=format&fit=crop';
+
+function toCardProduct(p: ServerProduct): Product {
+  return {
+    id: p.id,
+    title: p.name,
+    price: Number.parseFloat(p.price),
+    image: p.imageUrl || p.images?.[0] || placeholder,
+  };
+}
 
 export default function Home() {
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const resp = (await api.listProducts()) as any;
+        const items: ServerProduct[] = Array.isArray(resp)
+          ? resp
+          : Array.isArray(resp?.items)
+          ? resp.items
+          : [];
+        if (!alive) return;
+        setProducts(items.map(toCardProduct));
+      } catch (e) {
+        if (!alive) return;
+        setError((e as Error).message);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
   return (
     <div className="home">
       <Header />
@@ -25,11 +64,17 @@ export default function Home() {
       <main className="home__main">
         <section className="home__section">
           <h3 className="home__title">Destaques</h3>
-          <div className="home__grid">
-            {sample.map((p) => (
-              <ProductCard key={p.id} p={p} />
-            ))}
-          </div>
+          {loading ? (
+            <div>Carregando produtos...</div>
+          ) : error ? (
+            <div className="error">{error}</div>
+          ) : (
+            <div className="home__grid">
+              {products.map((p) => (
+                <ProductCard key={p.id} p={p} />
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="home__newsletter">

@@ -19,11 +19,28 @@ type CartContextType = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'cart:v1';
+function storageKeyFor(owner: string) {
+  return `cart:v1:${owner || 'guest'}`;
+}
 
-function loadInitial(): CartItem[] {
+function readOwner(): string {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    return localStorage.getItem('currentUserId') || 'guest';
+  } catch {
+    return 'guest';
+  }
+}
+
+function loadFrom(owner: string): CartItem[] {
+  try {
+    let raw = localStorage.getItem(storageKeyFor(owner));
+    if (!raw && owner === 'guest') {
+      // migrate legacy key if present
+      raw = localStorage.getItem('cart:v1');
+      if (raw) {
+        try { localStorage.setItem(storageKeyFor('guest'), raw); localStorage.removeItem('cart:v1'); } catch {}
+      }
+    }
     if (!raw) return [];
     const parsed = JSON.parse(raw) as CartItem[];
     if (!Array.isArray(parsed)) return [];
@@ -34,15 +51,31 @@ function loadInitial(): CartItem[] {
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(loadInitial);
+  const [owner, setOwner] = useState<string>(readOwner());
+  const [items, setItems] = useState<CartItem[]>(() => loadFrom(readOwner()));
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      localStorage.setItem(storageKeyFor(owner), JSON.stringify(items));
     } catch {
       // ignore storage errors
     }
-  }, [items]);
+  }, [items, owner]);
+
+  // When auth changes, switch the storage namespace
+  useEffect(() => {
+    function onAuthChanged() {
+      const newOwner = readOwner();
+      setOwner(newOwner);
+      setItems(loadFrom(newOwner));
+    }
+    window.addEventListener('auth:user-changed', onAuthChanged as any);
+    window.addEventListener('storage', onAuthChanged as any);
+    return () => {
+      window.removeEventListener('auth:user-changed', onAuthChanged as any);
+      window.removeEventListener('storage', onAuthChanged as any);
+    };
+  }, []);
 
   const add = (product: Product, qty: number = 1) => {
     setItems((prev) => {
@@ -93,4 +126,3 @@ export function useCart() {
   if (!ctx) throw new Error('useCart deve ser usado dentro de CartProvider');
   return ctx;
 }
-

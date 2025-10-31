@@ -42,7 +42,7 @@ export default function LoginPage() {
         </button>
         <div className="auth-actions">
           <Link to="/register" className="link">Criar conta</Link>
-          <Link to="/auth?tab=forgot" className="link">Esqueci minha senha</Link>
+          <Link to="/forgot" className="link">Esqueci minha senha</Link>
         </div>
       </form>
     </AuthLayout>

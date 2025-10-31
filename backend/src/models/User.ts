@@ -9,6 +9,7 @@ interface UserAttributes {
   passwordHash: string;
   role: 'user' | 'admin';
   dateOfBirth?: string | null; // YYYY-MM-DD (DATEONLY)
+  emailVerifiedAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -23,6 +24,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
   public passwordHash!: string;
   public role!: 'user' | 'admin';
   public dateOfBirth!: string | null;
+  public emailVerifiedAt!: Date | null;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -61,6 +63,10 @@ User.init(
     },
     dateOfBirth: {
       type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+    emailVerifiedAt: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
   },

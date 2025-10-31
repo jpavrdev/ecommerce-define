@@ -4,16 +4,29 @@ import Footer from '../components/Footer';
 import { useCart } from '../components/CartContext';
 import './Cart.css';
 import { Link } from 'react-router-dom';
+import { getToken } from '../api';
 
 export default function CartPage() {
   const { items, increment, decrement, remove, clear, total, count } = useCart();
+  const loggedIn = !!getToken();
 
   return (
     <div className="cartpage">
       <Header />
       <main className="cartpage__main">
         <h2 className="cartpage__title">Seu carrinho</h2>
-        {items.length === 0 ? (
+        {!loggedIn ? (
+          <div className="cartpage__login">
+            <div className="cartpage__login-text">
+              <h3>Seu carrinho está vazio</h3>
+              <p>Faça login para ver o que está salvo no seu carrinho.</p>
+            </div>
+            <div className="cartpage__login-actions">
+              <Link to="/login" className="btn-primary">Fazer login</Link>
+              <Link to="/register" className="btn-outline">Criar conta</Link>
+            </div>
+          </div>
+        ) : items.length === 0 ? (
           <div className="cartpage__empty">
             <p>Seu carrinho está vazio.</p>
             <Link to="/" className="cartpage__back">Voltar às compras</Link>

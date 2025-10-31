@@ -43,14 +43,23 @@ export const api = {
   login: async (payload: { email: string; password: string }) => {
     const data = await request('/auth/login', { method: 'POST', body: JSON.stringify(payload) });
     setToken((data as any).token);
+    try {
+      const uid = (data as any)?.user?.id;
+      if (uid !== undefined) {
+        localStorage.setItem('currentUserId', String(uid));
+        window.dispatchEvent(new CustomEvent('auth:user-changed', { detail: { id: uid } }));
+      }
+    } catch {}
     return data as any;
   },
   me: () => request('/auth/me'),
-  logout: () => setToken(null),
+  logout: () => { setToken(null); try { localStorage.removeItem('currentUserId'); window.dispatchEvent(new CustomEvent('auth:user-changed', { detail: { id: null } })); } catch {} },
   forgotPassword: (payload: { email: string }) =>
     request('/auth/forgot-password', { method: 'POST', body: JSON.stringify(payload) }),
   resetPassword: (payload: { token: string; newPassword: string }) =>
     request('/auth/reset-password', { method: 'POST', body: JSON.stringify(payload) }),
   createProduct: (payload: { name: string; sku: string; price: number; description?: string; brandId?: number; brandName?: string; imageUrl?: string; images?: string[]; characteristics?: any; specifications?: any; }) =>
     request('/products', { method: 'POST', body: JSON.stringify(payload) }),
+  listProducts: () => request('/products'),
+  getProduct: (id: number | string) => request(`/products/${id}`),
 };
