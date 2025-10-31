@@ -90,7 +90,7 @@ export async function login(req: Request, res: Response) {
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      appConfig.jwtSecret as Secret,
+      appConfig.jwtSecret,
       { expiresIn: appConfig.jwtExpiresIn as SignOptions['expiresIn'] }
     );
     const fullName = `${user.firstName} ${user.lastName}`.trim();
