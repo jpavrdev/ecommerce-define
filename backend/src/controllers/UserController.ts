@@ -88,10 +88,12 @@ export async function login(req: Request, res: Response) {
       return res.status(403).json({ message: 'Confirme seu e-mail para acessar.' });
     }
 
+    const jwtSecret: Secret = appConfig.jwtSecret as Secret;
+    const signOptions: SignOptions = { expiresIn: appConfig.jwtExpiresIn } as SignOptions;
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      appConfig.jwtSecret,
-      { expiresIn: appConfig.jwtExpiresIn as SignOptions['expiresIn'] }
+      jwtSecret,
+      signOptions
     );
     const fullName = `${user.firstName} ${user.lastName}`.trim();
     return res.json({ token, user: { id: user.id, role: user.role, firstName: user.firstName, lastName: user.lastName, fullName, email: user.email, dateOfBirth: user.dateOfBirth, name: fullName } });
