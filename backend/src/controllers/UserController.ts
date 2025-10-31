@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { UniqueConstraintError } from 'sequelize';
 import { User } from '../models/User.js';
 import { PasswordResetToken } from '../models/PasswordResetToken.js';
-import { appConfig } from '../config/database.js';
+import { appConfig } from '../config/appConfig.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { EmailVerificationToken } from '../models/EmailVerificationToken.js';
 
