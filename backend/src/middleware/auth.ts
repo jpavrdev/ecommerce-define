@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { Secret } from 'jsonwebtoken';
-import { appConfig } from '../config/database.js';
+import { appConfig } from '../config/appConfig.js';
 
 export interface AuthRequest extends Request {
   user?: { id: number; email: string; role?: 'user' | 'admin' };
@@ -26,4 +26,3 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
   if (!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acesso restrito a administradores' });
   return next();
 }
-
