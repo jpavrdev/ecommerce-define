@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import { useCart } from '../components/CartContext';
 import type { Product as CardProduct } from '../components/ProductCard';
 import './Product.css';
-import { api } from '../api';
+import { api, productImageUrl } from '../api';
 
 type ServerProduct = {
   id: number;
@@ -23,7 +23,7 @@ type ServerProduct = {
 const placeholder = 'https://images.unsplash.com/photo-1606813907291-76a3600e5d0f?q=80&w=1200&auto=format&fit=crop';
 
 function toCardProduct(p: ServerProduct): CardProduct {
-  return { id: p.id, title: p.name, price: Number.parseFloat(p.price), image: p.imageUrl || p.images?.[0] || placeholder };
+  return { id: p.id, title: p.name, price: Number.parseFloat(p.price), image: p.imageUrl || p.images?.[0] || productImageUrl(p.id) || placeholder };
 }
 
 export default function ProductPage() {
@@ -39,6 +39,8 @@ export default function ProductPage() {
   const [brandName, setBrandName] = React.useState<string | null>(null);
   const [sku, setSku] = React.useState<string | null>(null);
   const [rating, setRating] = React.useState<number>(0);
+  const [avgRating, setAvgRating] = React.useState<number>(0);
+  const [ratingsCount, setRatingsCount] = React.useState<number>(0);
   const [dims, setDims] = React.useState<Partial<Record<'Altura'|'Largura'|'Comprimento'|'Peso', string>>>({});
 
   React.useEffect(() => {
@@ -66,6 +68,11 @@ export default function ProductPage() {
         setDescription(data.description ?? null);
         setBrandName(data.brand?.name ?? data.brandName ?? null);
         setSku(data.sku ?? null);
+        const avg = (data as any).avgRating != null ? Number((data as any).avgRating) : 0;
+        const cnt = (data as any).ratingsCount != null ? Number((data as any).ratingsCount) : 0;
+        setAvgRating(Number.isFinite(avg) ? avg : 0);
+        setRatingsCount(Number.isFinite(cnt) ? cnt : 0);
+        setRating(Math.round(Number.isFinite(avg) ? avg : 0));
         // Dimensions subset (case-insensitive with diacritics removed)
         const norm = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
         const lookup = new Map(entries.map(e => [norm(e.key), e.value] as const));
@@ -103,7 +110,7 @@ export default function ProductPage() {
         ) : (
           <div className="product">
             <div className="product__gallery">
-              <img src={product.image} alt={product.title} className="product__img" />
+              <img src={product.image} alt={product.title} className="product__img" onError={(e)=>{ const img=e.currentTarget; img.onerror=null; img.src='https://images.unsplash.com/photo-1606813907291-76a3600e5d0f?q=80&w=1200&auto=format&fit=crop'; }} />
             </div>
             <div className="product__info">
               <h1 className="product__title">{product.title}</h1>
@@ -117,6 +124,7 @@ export default function ProductPage() {
                 ))}
                 <button className="product__rate-link" onClick={() => alert('Funcionalidade de avaliação em breve')}>avalie este produto</button>
               </div>
+              <div style={{ color: '#666', fontSize: 14 }}>{ratingsCount} avaliaç{ratingsCount===1?'ão':'ões'}</div>
               <div className="product__price">R$ {product.price.toFixed(2)}</div>
               <p className="product__desc">{description || 'Sem descrição disponível.'}</p>
               {Object.keys(dims).length > 0 && (
@@ -154,3 +162,4 @@ export default function ProductPage() {
     </div>
   );
 }
+

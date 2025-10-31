@@ -16,10 +16,10 @@ async function bootstrap() {
 
   try {
     await connectDB();
-    const alter = process.env.DB_SYNC_ALTER === 'true' || appConfig.nodeEnv !== 'production';
-    await sequelize.sync({ alter });
+    const alter = process.env.DB_SYNC_ALTER === 'true';
     if (alter) {
-      console.log('Sequelize sync with alter=true (dev): schema atualizado.');
+      await sequelize.sync({ alter: true });
+      console.log('Sequelize sync with alter=true: schema atualizado.');
     }
     app.listen(appConfig.port, () => {
       console.log(`API rodando em http://localhost:${appConfig.port}`);

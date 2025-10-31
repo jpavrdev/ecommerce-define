@@ -1,11 +1,13 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import CategoryNav from '../components/CategoryNav';
 import Hero from '../components/Hero';
 import ProductCard, { Product } from '../components/ProductCard';
+import ProductCarousel from '../components/ProductCarousel';
 import Footer from '../components/Footer';
 import './Home.css';
-import { api } from '../api';
+import { api, productImageUrl } from '../api';
 
 type ServerProduct = {
   id: number;
@@ -24,7 +26,7 @@ function toCardProduct(p: ServerProduct): Product {
     id: p.id,
     title: p.name,
     price: Number.parseFloat(p.price),
-    image: p.imageUrl || p.images?.[0] || placeholder,
+    image: p.imageUrl || p.images?.[0] || productImageUrl(p.id) || placeholder,
   };
 }
 
@@ -32,12 +34,36 @@ export default function Home() {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [activeCatId, setActiveCatId] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const resp = (await api.listProducts()) as any;
+        const params = new URLSearchParams(location.search);
+        const catIdParam = params.get('catId');
+        const catSlugParam = params.get('cat');
+        let catId: number | null = null;
+        if (catIdParam) {
+          const n = Number(catIdParam);
+          catId = Number.isFinite(n) ? n : null;
+        } else if (catSlugParam) {
+          try {
+            const cats = (await api.listCategories()) as Array<{ id: number; slug: string }>;
+            const found = cats.find((c) => c.slug === catSlugParam);
+            if (found) {
+              catId = found.id;
+              const usp = new URLSearchParams(location.search);
+              usp.set('catId', String(found.id));
+              navigate({ search: usp.toString() }, { replace: true });
+            }
+          } catch {}
+        }
+        setActiveCatId(catId);
+
+        const resp = (await api.listProducts(catId ? { categoryId: catId } : undefined)) as any;
         const items: ServerProduct[] = Array.isArray(resp)
           ? resp
           : Array.isArray(resp?.items)
@@ -53,7 +79,7 @@ export default function Home() {
       }
     })();
     return () => { alive = false; };
-  }, []);
+  }, [location.search, navigate]);
 
   return (
     <div className="home page">
@@ -68,12 +94,10 @@ export default function Home() {
             <div>Carregando produtos...</div>
           ) : error ? (
             <div className="error">{error}</div>
+          ) : products.length === 0 ? (
+            <div>Nenhum produto para destacar.</div>
           ) : (
-            <div className="home__grid">
-              {products.map((p) => (
-                <ProductCard key={p.id} p={p} />
-              ))}
-            </div>
+            <ProductCarousel products={products} />
           )}
         </section>
 

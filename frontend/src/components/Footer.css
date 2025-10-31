@@ -1,4 +1,12 @@
-.footer { background: #0f1111; color: #d5d5d5; margin-top: 32px; }
+.footer {
+    background: #0f1111;
+    color: #d5d5d5;
+    margin-top: 32px;
+    position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+}
 .footer__wrap { max-width: 1100px; margin: 0 auto; padding: 18px 16px 28px; display: grid; gap: 10px; text-align: center; }
 .footer__links { display: flex; gap: 10px; justify-content: center; color: #c9c9c9; font-size: 13px; }
 .footer__links a { color: #c9c9c9; text-decoration: none; }

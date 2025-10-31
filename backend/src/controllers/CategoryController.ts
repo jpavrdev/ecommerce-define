@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { Category } from '../models/Category.js';
+import { sequelize } from '../models/index.js';
 
 export async function listCategories(req: Request, res: Response) {
   const { parentId, q } = req.query as Record<string, string>;
@@ -46,3 +47,4 @@ export async function deleteCategory(req: Request, res: Response) {
   return res.status(204).send();
 }
 
+\n\nexport async function childrenWithCount(req: Request, res: Response) {\n  const parentId = Number(req.params.id);\n  if (!Number.isFinite(parentId)) return res.status(400).json({ message: 'Categoria inválida' });\n  try {\n    const rows = await Category.findAll({\n      where: { parentId },\n      attributes: {\n        include: [\n          [\n            sequelize.literal('(SELECT COUNT(*) FROM products p WHERE p.categoryId = Category.id)'),\n            'productCount',\n          ],\n        ],\n      },\n      order: [[sequelize.literal('productCount'), 'DESC'], ['name', 'ASC']],\n    });\n    return res.json(rows);\n  } catch (err) {\n    return res.status(500).json({ message: 'Erro ao listar subcategorias', error: (err as Error).message });\n  }\n}\n

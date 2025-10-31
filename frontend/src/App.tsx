@@ -9,6 +9,7 @@ import { RequireAdmin } from './components/RouteGuards';
 import CartPage from './pages/Cart';
 import { CartProvider } from './components/CartContext';
 import ProductPage from './pages/Product';
+import CategoryPage from './pages/Category';
 import ForgotPasswordPage from './pages/ForgotPassword';
 import ResetPasswordPage from './pages/ResetPassword';
 import ContactPage from './pages/Contact';
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/admin" element={<RequireAdmin><AdminPage /></RequireAdmin>} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
         </Routes>
       </CartProvider>
     </BrowserRouter>

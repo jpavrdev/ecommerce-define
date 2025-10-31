@@ -75,3 +75,5 @@ User.init(
     tableName: 'users',
   }
 );
+
+// associations for ratings are declared in ProductRating.ts to avoid cycles

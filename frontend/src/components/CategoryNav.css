@@ -1,7 +1,9 @@
 .catnav { background: var(--brand-blue); position: relative; z-index: 20; }
-.catnav__wrap { max-width: 1200px; margin: 0 auto; padding: 8px 16px; display: flex; gap: 16px; align-items: center; }
-.catnav__btn, .catnav__trigger { background: transparent; color: #fff; border: none; font-weight: 600; white-space: nowrap; }
+.catnav__wrap { max-width: 1200px; margin: 0 auto; padding: 6px 16px; display: flex; gap: 16px; align-items: center; }
+.catnav__btn, .catnav__trigger { background: transparent; color: #fff; border: none; font-weight: 600; white-space: nowrap; cursor: pointer; }
 .catnav__trigger { display: flex; align-items: center; gap: 8px; border-right: 1px solid rgba(255,255,255,0.2); padding-right: 12px; }
+.catnav__hamburger { display: inline-flex; flex-direction: column; gap: 3px; width: 18px; height: 14px; }
+.catnav__hamburger .bar { display: block; height: 2px; width: 100%; background: #fff; border-radius: 2px; }
 
 .mega { position: absolute; left: 0; right: 0; top: 100%; background: #fff; color: #111; box-shadow: 0 4px 24px rgba(0,0,0,0.12); display: grid; grid-template-columns: 280px 1fr; min-height: 320px; }
 .mega__left { background: #f8f9fa; padding: 8px; display: flex; flex-direction: column; }

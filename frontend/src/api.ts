@@ -12,7 +12,9 @@ export function setToken(token: string | null) {
 }
 
 async function request(path: string, options: RequestInit = {}) {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const isForm = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const headers: Record<string, string> = {};
+  if (!isForm) headers['Content-Type'] = 'application/json';
   if (options.headers) {
     const h = options.headers as HeadersInit;
     if (h instanceof Headers) {
@@ -39,6 +41,17 @@ async function request(path: string, options: RequestInit = {}) {
   return data;
 }
 
+function buildQuery(params?: Record<string, any>) {
+  if (!params) return '';
+  const usp = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null || v === '') continue;
+    usp.set(k, String(v));
+  }
+  const qs = usp.toString();
+  return qs ? `?${qs}` : '';
+}
+
 export const api = {
   register: (payload: { firstName: string; lastName: string; email: string; password: string; confirmPassword: string; dateOfBirth?: string | null; }) =>
     request('/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
@@ -60,9 +73,16 @@ export const api = {
     request('/auth/forgot-password', { method: 'POST', body: JSON.stringify(payload) }),
   resetPassword: (payload: { token: string; newPassword: string }) =>
     request('/auth/reset-password', { method: 'POST', body: JSON.stringify(payload) }),
-  createProduct: (payload: { name: string; sku: string; price: number; description?: string; brandId?: number; brandName?: string; imageUrl?: string; images?: string[]; characteristics?: any; specifications?: any; }) =>
-    request('/products', { method: 'POST', body: JSON.stringify(payload) }),
-  listProducts: () => request('/products'),
+  createProduct: (payload: FormData | { name: string; sku: string; price: number; description?: string; brandId?: number; brandName?: string; imageUrl?: string; images?: string[]; characteristics?: any; specifications?: any; categoryId?: number; }) =>
+    payload instanceof FormData
+      ? request('/products', { method: 'POST', body: payload })
+      : request('/products', { method: 'POST', body: JSON.stringify(payload) }),
+  listProducts: (params?: { categoryId?: number | string; q?: string; limit?: number; offset?: number }) => request(`/products${buildQuery(params)}`),
   getProduct: (id: number | string) => request(`/products/${id}`),
   listCategories: () => request('/categories'),
+  listSubcategoriesWithCount: (parentId: number | string) => request(`/categories/${parentId}/children-with-count`),
 };
+
+export function productImageUrl(id: number | string) {
+  return `${API_URL}/products/${id}/image`;
+}

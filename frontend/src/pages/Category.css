@@ -1,0 +1,29 @@
+.category { display: grid; grid-template-columns: 300px 1fr; gap: 24px; max-width: 1280px; margin: 16px auto; padding: 0 16px; }
+.category__filters { position: sticky; top: 16px; align-self: start; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+.filters__title { display: flex; gap: 8px; align-items: center; font-weight: 700; color: #555; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.filters__icon { color: #ff7a00; }
+.filter { border-bottom: 1px solid var(--border); padding: 8px 0; }
+.filter:last-child { border-bottom: 0; }
+.filter__summary { display: flex; justify-content: space-between; align-items: center; width: 100%; background: transparent; border: 0; padding: 8px 0; font-weight: 600; cursor: pointer; }
+.filter__chev { transition: transform .2s ease; }
+.filter__chev.is-open { transform: rotate(180deg); }
+.filter__content { padding: 8px 0 4px; display: grid; gap: 8px; }
+.filter__row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.filter__list { display: grid; gap: 6px; }
+.filter__chip { text-align: left; background: #f6f7f9; border: 1px solid var(--border); padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+.filter__chip.is-active { border-color: #ff7a00; color: #d85c00; background: #fff6ee; }
+.filter__range { display: grid; gap: 8px; }
+.filter__range input[type=range] { width: 100%; }
+.filter__range-labels { display: flex; justify-content: space-between; font-size: .9rem; color: #555; }
+
+.category__results { display: grid; gap: 16px; }
+.category__toolbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f7f9fc; border: 1px solid var(--border); border-radius: 8px; }
+.category__title { margin: 0; font-size: 1.6rem; }
+.category__grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; min-height: 200px; }
+.category__empty { color: #666; padding: 12px; }
+.view { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; margin-left: 6px; }
+.view.is-active { background: #ff7a00; color: #fff; border-color: #ff7a00; }
+
+@media (max-width: 1200px) { .category__grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (max-width: 900px) { .category { grid-template-columns: 1fr; } .category__grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .category__filters { position: static; } }
+@media (max-width: 560px) { .category__grid { grid-template-columns: repeat(1, minmax(0,1fr)); } }

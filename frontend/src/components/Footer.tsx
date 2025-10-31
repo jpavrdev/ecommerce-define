@@ -17,7 +17,7 @@ export default function Footer() {
           <a href="#">Anúncios Baseados em Interesses</a>
         </div>
 
-        <div className="footer__copyright">© {year} Construclick, Inc. e suas afiliadas</div>
+        <div className="footer__copyright">© {year} Construclick</div>
 
         <div className="footer__legal">Construclick Comércio de Materiais Ltda. | CNPJ 12.345.678/0001-99</div>
 
