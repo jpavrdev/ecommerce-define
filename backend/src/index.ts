@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { appConfig } from './config/appConfig';
+import { appConfig } from './config/appConfig.js';
 import routes from './routes/index.js';
 import { connectDB, sequelize } from './models/index.js';
 
