@@ -91,8 +91,15 @@ export async function login(req: Request, res: Response) {
     // const jwtSecret: Secret = appConfig.jwtSecret as Secret;
     // const signOptions: SignOptions = { expiresIn: appConfig.jwtExpiresIn } as SignOptions;
     const secret: Secret = appConfig.jwtSecret;
-    const signOpts: SignOptions = { expiresIn: appConfig.jwtExpiresIn, algorithm: 'HS256' };
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, secret, signOpts);
+    const signOpts: SignOptions = {
+      expiresIn: appConfig.jwtExpiresIn,
+      algorithm: 'HS256',
+    };
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      secret,
+      signOpts
+    );
 
     const fullName = `${user.firstName} ${user.lastName}`.trim();
     return res.json({ token, user: { id: user.id, role: user.role, firstName: user.firstName, lastName: user.lastName, fullName, email: user.email, dateOfBirth: user.dateOfBirth, name: fullName } });
