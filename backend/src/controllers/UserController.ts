@@ -158,34 +158,37 @@ export async function resetPassword(req: Request, res: Response) {
 
 export async function verifyEmail(req: Request, res: Response) {
   const { token } = req.body as { token?: string };
-  if (!token) return res.status(400).json({ message: 'Token é obrigatório' });
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-  const rec = await EmailVerificationToken.findOne({ where: { tokenHash } });
-  if (!rec || (rec as any).usedAt || rec.expiresAt < new Date()) {
-    return res.status(400).json({ message: 'Token inválido ou expirado' });
-  }
-  const user = await User.findByPk(rec.userId);
-  if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
-  (rec as any).usedAt = new Date();
-  await rec.save();
-  (user as any).emailVerifiedAt = new Date();
-  await user.save();
-  return res.json({ message: 'E-mail verificado com sucesso' });
-}
+  if (!token) return res.status(400).json({ message: 'Token de verificação inválido' });
 
-export async function resendVerification(req: Request, res: Response) {
-  const { email } = req.body as { email?: string };
-  if (!email) return res.status(400).json({ message: 'Email é obrigatório' });
-  const user = await User.findOne({ where: { email: email.trim().toLowerCase() } });
-  if (!user) return res.status(200).json({ message: 'Se existir, enviaremos um novo link' });
-  if (user.emailVerifiedAt) return res.status(200).json({ message: 'E-mail já verificado' });
-  const rawToken = crypto.randomBytes(32).toString('hex');
-  const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  await EmailVerificationToken.create({ userId: user.id, tokenHash, expiresAt });
-  if (appConfig.nodeEnv !== 'production') {
-    console.log(`Verificação de e-mail (dev - resend): token=${rawToken}`);
-    return res.json({ message: 'Link reenviado (dev)', devToken: rawToken });
+  try {
+    // Hash the token received from the user to look it up in the database
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const now = new Date();
+
+    // Find the verification token record in the database
+    const record = await EmailVerificationToken.findOne({ where: { tokenHash } });
+
+    // Check for an invalid or expired token
+    if (!record || record.expiresAt < now) {
+      return res.status(400).json({ message: 'Token inválido ou expirado' });
+    }
+
+    // Find the user associated with the token
+    const user = await User.findByPk(record.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    // Update the user's email verification timestamp
+    user.emailVerifiedAt = now;
+    await user.save();
+
+    // Remove the verification token from the database to prevent reuse
+    await record.destroy();
+
+    return res.status(200).json({ message: 'E-mail verificado com sucesso. Você já pode fazer login.' });
+  } catch (err) {
+    console.error('Erro ao verificar e-mail:', err);
+    return res.status(500).json({ message: 'Erro ao verificar o e-mail', error: (err as Error).message });
   }
-  return res.json({ message: 'Link de verificação reenviado' });
 }
