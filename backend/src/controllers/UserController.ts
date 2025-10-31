@@ -192,3 +192,29 @@ export async function verifyEmail(req: Request, res: Response) {
     return res.status(500).json({ message: 'Erro ao verificar o e-mail', error: (err as Error).message });
   }
 }
+
+export async function resendVerification(req: Request, res: Response) {
+  const { email } = req.body as { email?: string };
+  if (!email) return res.status(400).json({ message: 'Email é obrigatório' });
+  try {
+    const normalized = email.trim().toLowerCase();
+    const user = await User.findOne({ where: { email: normalized } });
+    if (!user) {
+      return res.status(200).json({ message: 'Se existir, enviaremos um novo link' });
+    }
+    if (user.emailVerifiedAt) {
+      return res.status(200).json({ message: 'E-mail já verificado' });
+    }
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await EmailVerificationToken.create({ userId: user.id, tokenHash, expiresAt });
+    if (appConfig.nodeEnv !== 'production') {
+      console.log(`Verificação de e-mail (dev - resend): token=${rawToken}`);
+      return res.json({ message: 'Link reenviado (dev)', devToken: rawToken });
+    }
+    return res.json({ message: 'Link de verificação reenviado' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Erro ao reenviar verificação', error: (err as Error).message });
+  }
+}
