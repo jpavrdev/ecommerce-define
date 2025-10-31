@@ -56,7 +56,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="home">
+    <div className="home page">
       <Header />
       <CategoryNav />
       <Hero />

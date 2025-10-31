@@ -91,7 +91,7 @@ export default function ProductPage() {
   }, [id, state?.product]);
 
   return (
-    <div className="productpage">
+    <div className="productpage page">
       <Header />
       <main className="productpage__main">
         {loading ? (

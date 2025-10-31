@@ -17,6 +17,10 @@ body {
   background: var(--bg);
 }
 
+/* Utility to keep footer at bottom */
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+.page > main { flex: 1; }
+
 a { color: inherit; }
 button { cursor: pointer; }
 

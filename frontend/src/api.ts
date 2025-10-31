@@ -62,4 +62,5 @@ export const api = {
     request('/products', { method: 'POST', body: JSON.stringify(payload) }),
   listProducts: () => request('/products'),
   getProduct: (id: number | string) => request(`/products/${id}`),
+  listCategories: () => request('/categories'),
 };

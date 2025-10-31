@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import Header from '../components/Header';
 import './Admin.css';
 import { api } from '../api';
 
 export default function AdminPage() {
   return (
-    <div>
+    <div className="page">
       <Header />
       <main className="admin">
-        <h2 className="admin__title">Configurações</h2>
+        <h2 className="admin__title">ConfiguraÃ§Ãµes</h2>
         <section className="admin__card">
           <h3 style={{ margin: 0 }}>Novo produto</h3>
           <CreateProductForm />
@@ -52,7 +52,7 @@ function CreateProductForm() {
       </div>
       <div className="admin__cols">
         <label className="admin__row">
-          <span className="auth-label">Preço</span>
+          <span className="auth-label">PreÃ§o</span>
           <input className="input" value={price} onChange={(e)=>setPrice(e.target.value)} type="number" step="0.01" required />
         </label>
         <label className="admin__row">
@@ -71,4 +71,5 @@ function CreateProductForm() {
     </form>
   );
 }
+
 

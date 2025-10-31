@@ -11,7 +11,7 @@ export default function CartPage() {
   const loggedIn = !!getToken();
 
   return (
-    <div className="cartpage">
+    <div className="cartpage page">
       <Header />
       <main className="cartpage__main">
         <h2 className="cartpage__title">Seu carrinho</h2>
@@ -71,4 +71,3 @@ export default function CartPage() {
     </div>
   );
 }
-

@@ -1,4 +1,10 @@
-.footer { border-top: 1px solid var(--border); background: #fafafa; margin-top: 32px; }
-.footer__wrap { max-width: 1200px; margin: 0 auto; padding: 20px 16px; display: grid; gap: 8px; color: #333; }
-.footer__brand { font-weight: 700; }
-.footer__small { color: #777; }
+.footer { background: #0f1111; color: #d5d5d5; margin-top: 32px; }
+.footer__wrap { max-width: 1100px; margin: 0 auto; padding: 18px 16px 28px; display: grid; gap: 10px; text-align: center; }
+.footer__links { display: flex; gap: 10px; justify-content: center; color: #c9c9c9; font-size: 13px; }
+.footer__links a { color: #c9c9c9; text-decoration: none; }
+.footer .sep { color: #555; margin: 0 6px; }
+.footer__copyright { color: #aaa; font-size: 12px; }
+.footer__legal { color: #cfcfcf; font-size: 13px; }
+.footer__contact { color: #cfcfcf; font-size: 13px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.footer__link { color: #9dc1ff; }
+.footer__payments { color: #cfcfcf; font-size: 13px; margin-top: 6px; }
