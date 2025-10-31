@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import jwt, { Secret, SignOptions } from 'jsonwebtoken';
+import jwt, { type Secret, type SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { UniqueConstraintError } from 'sequelize';
 import { User } from '../models/User.js';
@@ -88,13 +88,12 @@ export async function login(req: Request, res: Response) {
       return res.status(403).json({ message: 'Confirme seu e-mail para acessar.' });
     }
 
-    const jwtSecret: Secret = appConfig.jwtSecret as Secret;
-    const signOptions: SignOptions = { expiresIn: appConfig.jwtExpiresIn } as SignOptions;
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      jwtSecret,
-      signOptions
-    );
+    // const jwtSecret: Secret = appConfig.jwtSecret as Secret;
+    // const signOptions: SignOptions = { expiresIn: appConfig.jwtExpiresIn } as SignOptions;
+    const secret: Secret = appConfig.jwtSecret;
+    const signOpts: SignOptions = { expiresIn: appConfig.jwtExpiresIn, algorithm: 'HS256' };
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, secret, signOpts);
+
     const fullName = `${user.firstName} ${user.lastName}`.trim();
     return res.json({ token, user: { id: user.id, role: user.role, firstName: user.firstName, lastName: user.lastName, fullName, email: user.email, dateOfBirth: user.dateOfBirth, name: fullName } });
   } catch (err) {
